@@ -1,0 +1,6 @@
+Put only 1 cookie in TargetCookie.txt
+Put as many cookies as you want in Cookies.txt just make sure to seperate each cookie entry with a new line (\n)
+example:
+Cookie1
+Cookie2
+Have fun
