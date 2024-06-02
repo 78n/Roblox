@@ -3,6 +3,8 @@ FFlags = {
     'FFlagDebugGraphicsPreferVulkan_enabled' : True, # FPS boost
     'DFFlagDebugEnableInterpolationVisualizer': True, # Enables F8 menu (esp sorta for networks)
     'FStringWhitelistVerifiedUserId' : "", # Fake verified badge (UserId)
+    'FFlagDebugSimDefaultPrimalSolver' : True, # Enable the new simulation engine or whatever it is
+    'DFIntDebugSimPrimalLineSearch' : 1, # A poor man's gravity/flight [Default 100] (above 0 is low gravity | below 1 to -1 is will make gameplay weird when it comes to physics | below -1 is a poor mans fly (not really useable)
     
     #'DFIntHipHeightClamp' : -20, # clamp hipheight
     #'DFIntMaxAltitudePDHipHeightPercent' : -99999, # Shortflag
