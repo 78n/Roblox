@@ -7,7 +7,7 @@ DataToCode is a library that converts Roblox datatypes back into usable code via
 ___
 ### 🔨 Documentation/Usage
 
-###### Functions
+##### Functions
 | Function | Parallel Safe | Example |
 | :----------- | :----------- | :----------- |
 | \<**string**\> DataToCode.Convert\<Type\>(DataStructure : **Type**, format : **boolean?**) | ✔️ | DataToCode.Convert({true}, true) |
@@ -15,13 +15,13 @@ ___
 | \<void\> DataToCode.print(... : **...any**) | ✔️ | DataToCode.print("example", 1, Vector3.new(10, 23, 9)) |
 | \<void\> DataToCode.warn(... : **...any**) | ✔️ | DataToCode.warn("example", 1, Vector3.new(10, 23, 9)) |
 
-###### Settings
+##### Settings
 | Setting | Type | Default |
 | :----------- | :----------- | :----------- |
 | __tostringUnsupported | **boolean** | **false** |
 | __Serializeinf | **boolean** | **false** |
 
-###### Editables
+##### Editables
 | Library |
 | :----------- |
 | Methods<**string**, **function?**> |
@@ -33,7 +33,7 @@ ___
 
 All libraries present have proper newindex checks when modifying them
 
-###### Example
+### Example
 ```lua
 local DataToCode = require("./DataToCode")
 DataToCode.__Serializeinf = true
