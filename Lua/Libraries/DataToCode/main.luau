@@ -3,12 +3,13 @@
 
 	Created by: https://github.com/78n
 	License: https://github.com/78n/Roblox/blob/main/LICENSE | Covered by MIT
-	The reason I don't use string interpolation is because it is very slow
 
 	A little background about the coding style:
 		I sometimes use next to avoid invoking __call/__iter in tables that I dont know the orgin of
+		This has been rewritten like 3 seperate times
+		The reason I don't use string interpolation is because it is very slow
+		I dont use a giant if then elseif in my Serializer function as it is not as maintainable/scaleable as a dictionary of methods
 ]]
-
 --!optimize 2
 --!native
 
@@ -29,7 +30,8 @@ local inf, neginf = math.huge, -math.huge
 local DefaultMethods = {}
 local Methods = setmetatable({}, {__index = DefaultMethods})
 local Class = {
-	__tostringUnsupported = false -- whether or not to tostring unsupported types
+	__tostringUnsupported = false, -- whether or not to tostring unsupported types
+	__Serializeinf = false
 }
 
 local Services = {
@@ -42,7 +44,7 @@ local Services = {
 	DebuggerManager = "DebuggerManager()"
 }
 
-local Signals = {
+local Signals = { -- You theoretically could serialize the api to retrieve most of the Signals but I don't believe that its really worth it
 	GraphicsQualityChangeRequest = "game.GraphicsQualityChangeRequest",
 	AllowedGearTypeChanged = "game.AllowedGearTypeChanged",
 	ScreenshotSavedToAlbum = "game.ScreenshotSavedToAlbum",
@@ -118,7 +120,7 @@ end
 
 local GlobalFunctions = {} do
 	local getrenv = getrenv or (function()
-		local env = {
+		local env = { -- I could be missing a couple libraries
 			bit32 = bit32,
 			buffer = buffer,
 			coroutine = coroutine,
@@ -165,7 +167,7 @@ local GlobalFunctions = {} do
 			Vector3 = Vector3,
 			vector = vector,
 			Vector3int16 = Vector3int16,
-			CellId = CellId,
+			CellId = CellId, -- Undocumented
 			PluginDrag = PluginDrag,
 			SecurityCapabilities = SecurityCapabilities,
 	
@@ -546,7 +548,7 @@ function DefaultMethods.NumberSequence(Sequence : NumberSequence)
 	local Serialized = ""
 
 	for i = 1, Size-1 do
-		Serialized ..= Serialized..SerializeNumberSequenceKeypoint(Keypoints[i])..", "
+		Serialized ..= SerializeNumberSequenceKeypoint(Keypoints[i])..", "
 	end
 
 	return "NumberSequence.new({"..Serialized..SerializeNumberSequenceKeypoint(Keypoints[Size]).."})"
@@ -721,10 +723,10 @@ DefaultMethods["function"] = function(Function : (...any?) -> ...any?, format : 
 			local newlineindent = ",\n"..tempindents
 			local source, line, name, numparams, vargs = info(Function, "slna")
 
-			return "function()"..(line ~= -1 and "" or " --["..CommentSeperator.."[ CClosure ]"..CommentSeperator.."]").."\n\t"..indents.."--["..CommentSeperator.."[\n\t\t"..indents.."info = {\n"..tempindents.."source = "..SerializeString(source)..newlineindent.."line = "..line..newlineindent.."what = "..(line ~= -1 and "\"Lua\"" or "\"C\"")..newlineindent.."name = "..SerializeString(name)..newlineindent.."numparams = "..numparams..newlineindent.."vargs = "..(vargs and "true" or "false")..newlineindent.."function = "..tostring(Function).."\n\t\t"..indents.."}\n\t"..indents.."]"..CommentSeperator.."]\n"..indents.."end"
+			return "function()"..(line ~= -1 and "" or " --["..CommentSeperator.."[ CClosure "..(info(Function, "n")).." ]"..CommentSeperator.."]").."\n\t"..indents.."--["..CommentSeperator.."[\n\t\t"..indents.."info = {\n"..tempindents.."source = "..SerializeString(source)..newlineindent.."line = "..line..newlineindent.."what = "..(line ~= -1 and "\"Lua\"" or "\"C\"")..newlineindent.."name = "..SerializeString(name)..newlineindent.."numparams = "..numparams..newlineindent.."vargs = "..(vargs and "true" or "false")..newlineindent.."function = "..tostring(Function).."\n\t\t"..indents.."}\n\t"..indents.."]"..CommentSeperator.."]\n"..indents.."end"
 		end
 
-		return islclosure(Function) and "function() end" or "function() --["..(not InComment and "" or "=").."[ CClosure ]"..(not InComment and "" or "=").."] end" -- shouldn't really ever be possible unless lego hax newcclosure
+		return islclosure(Function) and "function() end" or "function() --["..(not InComment and "" or "=").."[ CClosure "..(info(Function, "n")).." ]"..(not InComment and "" or "=").."] end" -- shouldn't really ever be possible unless lego hax newcclosure
 	end
 
 	return IsGlobal
@@ -758,7 +760,7 @@ function DefaultMethods.table(tbl : {[any] : any}, format : boolean?, indents : 
 
 		return not isreadonly and "{}" or "table.freeze({})"
 	else
-		return "*** cycle table reference detected ***"
+		return "*** cycle table reference detected ***" -- I am NOT supporting cyclic tables as its a huge pain
 	end
 end
 
@@ -767,7 +769,7 @@ DefaultMethods["nil"] = function() -- why not
 end
 
 function DefaultMethods.number(num : number)
-	return num ~= inf and num ~= neginf and num == num and tostring(num) or num == inf and "math.huge" or num == neginf and "-math.huge" or "0/0"
+	return num ~= inf and num ~= neginf and num == num and tostring(num) or num == inf and (Class.__Serializeinf and "math.huge" or "1/0") or num == neginf and (Class.__Serializeinf and "-math.huge" or "-1/0") or "0/0"
 end
 
 function DefaultMethods.string(RawString : string)
@@ -816,14 +818,20 @@ function DefaultMethods.SecurityCapabilities(Capabilities : SecurityCapabilities
 
 	if tostring(Capabilities):match("CapabilityControl") then -- temp fix
 		local CommentSeperator = (InComment and "=" or "")
-		Contains[CurrentIndex] = "--["..CommentSeperator.."[CapabilityControl]"..CommentSeperator.."]"
+		Contains[CurrentIndex] = "--["..CommentSeperator.."[ CapabilityControl ]"..CommentSeperator.."]"
 	end
 
 	return "SecurityCapabilities.new("..concat(Contains, ", ")..")"
 end
 
+function DefaultMethods.PluginDrag(Drag : PluginDrag)
+	local SerializeString = Methods.string
+
+	return "PluginDrag.new("..SerializeString(Drag.Sender)..", "..SerializeString(Drag.MimeType)..", "..SerializeString(Drag.Data)..", "..SerializeString(Drag.MouseIcon)..", "..SerializeString(Drag.DragIcon)..", "..Methods.Vector2(Drag.HotSpot)..")"
+end
+
 function DefaultMethods.CellId()
-	return "CellId.new()" -- Undocumented so I have no idea what the accessors are
+	return "CellId.new()" -- Undocumented so I have no idea what the properties are
 end
 
 local function Serializevargs(... : any)
@@ -844,7 +852,7 @@ local function Serializevargs(... : any)
 end
 
 Class.Methods = setmetatable(Methods, {
-	__index = getmetatable(Methods).__index,
+	__index = getmetatable(Methods).__index, -- type solver did NOT like me __index down here
 	__newindex = function(self, index : string, newindex : ((...any?) -> (...any?))?)
 		assert(type(index) == "string" and (not newindex or type(newindex) == "string"), "Signals.index<string> = newindex<string?> expected, got: Signals.index<"..typeof(index).."> = newindex<"..typeof(newindex)..">")
 		rawset(self, index, newindex)
@@ -866,7 +874,7 @@ Class.Services = setmetatable(Services, {
 })
 
 Class.GlobalFunctions = setmetatable(GlobalFunctions, {
-	__newindex = function(self, index : string, newindex : (...any?) -> ()?)
+	__newindex = function(self, index : string, newindex : ((...any?) -> (...any?))?)
 		assert(type(index) == "string" and (not newindex or type(newindex) == "function"), "GlobalFunctions.index<string> = newindex<function> expected, got: GlobalFunctions.index<"..typeof(index).."> = newindex<"..typeof(newindex)..">")
 		rawset(self, index, newindex)
 	end
