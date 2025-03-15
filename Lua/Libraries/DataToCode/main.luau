@@ -14,7 +14,7 @@
 --!native
 
 local assert, type, typeof, rawset, getmetatable, tostring = assert, type, typeof, rawset, getmetatable, tostring
-local print, warn, pack, unpack = print, warn, table.pack, unpack
+local print, warn, pack, unpack, next = print, warn, table.pack, unpack, next
 
 local IsSharedFrozen, SharedSize = SharedTable.isFrozen, SharedTable.size
 local bufftostring, fromstring, readu8 = buffer.tostring, buffer.fromstring, buffer.readu8
@@ -70,10 +70,10 @@ local Signals = { -- You theoretically could serialize the api to retrieve most 
 local Keywords = {
 	["local"] = "\"local\"",
 	["function"] = "\"function\"",
---	["type"] = "\"type\"",
---	["typeof"] = "\"typeof\"",
---	["export"] = "\"export\"",
---	["continue"] = "\"continue\"",
+	--	["type"] = "\"type\"",
+	--	["typeof"] = "\"typeof\"",
+	--	["export"] = "\"export\"",
+	--	["continue"] = "\"continue\"",
 	["and"] = "\"and\"",
 	["break"] = "\"break\"",
 	["not"] = "\"not\"",
@@ -170,7 +170,7 @@ local GlobalFunctions = {} do
 			CellId = CellId, -- Undocumented
 			PluginDrag = PluginDrag,
 			SecurityCapabilities = SecurityCapabilities,
-	
+
 			assert = assert,
 			error = error,
 			getfenv = getfenv,
@@ -217,7 +217,7 @@ local GlobalFunctions = {} do
 			version = version,
 			Wait = Wait
 		}
-	
+
 		return function()
 			return env
 		end
@@ -233,7 +233,7 @@ local GlobalFunctions = {} do
 				local function LoadLibrary(Path : string, tbl : {[string] : any})
 					if not Visited[tbl] then
 						Visited[tbl] = true
-			
+
 						for i,v in next, tbl do
 							local Type = type(i) == "string" and not Keywords[i] and i:match("[A-z_][a-Z_0-9]") and type(v)
 							local NewPath = Type and (Type == "function" or Type == "table") and Path.."."..i
@@ -248,7 +248,7 @@ local GlobalFunctions = {} do
 						end
 					end
 				end
-	
+
 				LoadLibrary(i, v)
 				table.clear(Visited)
 			elseif ElementType == "function" then
@@ -261,13 +261,13 @@ end
 local DefaultVectors, DefaultCFrames = {}, {} do
 	local function ExtractTypes<Type>(From : {[any] : any}, Path : string, DataType : string, Storage : {}?) : {[Type] : string}
 		local Storage = Storage or setmetatable({}, {__mode = "k"}) -- I dont technically dont need it but as I don't know what people are going to do with this code better safe than sorry
-	
+
 		for i,v in next, From do
 			if typeof(v) == DataType and not Storage[v] and type(i) == "string" and not Keywords[i] and not i:match("[a-Z_][a-Z_0-9]") then
 				Storage[v] = Path.."."..i
 			end
 		end
-	
+
 		return Storage
 	end
 
@@ -852,7 +852,7 @@ local function Serializevargs(... : any)
 end
 
 Class.Methods = setmetatable(Methods, {
-	__index = getmetatable(Methods).__index, -- type solver did NOT like me __index down here
+	__index = getmetatable(Methods).__index,
 	__newindex = function(self, index : string, newindex : ((...any?) -> (...any?))?)
 		assert(type(index) == "string" and (not newindex or type(newindex) == "string"), "Signals.index<string> = newindex<string?> expected, got: Signals.index<"..typeof(index).."> = newindex<"..typeof(newindex)..">")
 		rawset(self, index, newindex)
@@ -874,7 +874,7 @@ Class.Services = setmetatable(Services, {
 })
 
 Class.GlobalFunctions = setmetatable(GlobalFunctions, {
-	__newindex = function(self, index : string, newindex : ((...any?) -> (...any?))?)
+	__newindex = function(self, index : string, newindex : (...any?) -> ()?)
 		assert(type(index) == "string" and (not newindex or type(newindex) == "function"), "GlobalFunctions.index<string> = newindex<function> expected, got: GlobalFunctions.index<"..typeof(index).."> = newindex<"..typeof(newindex)..">")
 		rawset(self, index, newindex)
 	end
