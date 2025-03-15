@@ -86,7 +86,7 @@ DataToCode.Convert(test_table, true) --[[
 | [DockWidgetPluginGuiInfo](https://create.roblox.com/docs/reference/engine/datatypes/DockWidgetPluginGuiInfo) | DockWidgetPluginGuiInfo.new(InitialDockState : **Enum.InitialDockState**, InitialEnabled : **boolean**, InitialEnabledShouldOverrideRestore : **boolean**, FloatingXSize : **number**, FloatingYSize : **boolean**, MinWidth : **number**, MinHeight : **number**) | ✔️ | ❌ |
 | [Enum](https://create.roblox.com/docs/reference/engine/datatypes/Enum) | Enum.**\<EnumType\>** | ✔️ | ✔️ |
 | [EnumItem](https://create.roblox.com/docs/reference/engine/datatypes/EnumItem) | Enum.**\<EnumType\>**.**\<EnumName\>** | ✔️ | ✔️ |
-| [Enums](https://create.roblox.com/docs/reference/engine/datatypes/Enums) | Enums | ✔️ | ✔️ |
+| [Enums](https://create.roblox.com/docs/reference/engine/datatypes/Enums) | Enum | ✔️ | ✔️ |
 | [Faces](https://create.roblox.com/docs/reference/engine/datatypes/Faces) | Faces.new(... : **...Enum.NormalId**) | ✔️ | ✔️ |
 | [FloatCurveKey](https://create.roblox.com/docs/reference/engine/datatypes/FloatCurveKey) | FloatCurveKey.new(Time : **number**, Value : **number**, Interpolation : **Enum.KeyInterpolationMode**) | ✔️ | N/A |
 | [Font](https://create.roblox.com/docs/reference/engine/datatypes/Font) | Font.new(Family : **string**, Weight : **Enum.FontWeight**, Style : **Enum.FontStyle**) | ✔️ | N/A |
