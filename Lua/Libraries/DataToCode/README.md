@@ -12,8 +12,8 @@ ___
 | :----------- | :----------- | :----------- |
 | \<**string**\> DataToCode.Convert\<Type\>(DataStructure : **Type**, format : **boolean?**) | ✔️ | DataToCode.Convert({true}, true) |
 | \<**string**\> DataToCode.ConvertKnown\<Type\>(DataType : **string**, DataStructure : **Type**, format : **boolean?**) | ✔️ | DataToCode.ConvertKnown("table", {true}, true)
-| \<void\> DataToCode.print(... : **...any**) | ✔️ | DataToCode.print("example", 1, Vector3.new(10, 23, 9)) |
-| \<void\> DataToCode.warn(... : **...any**) | ✔️ | DataToCode.warn("example", 1, Vector3.new(10, 23, 9)) |
+| \<**void**\> DataToCode.print(... : **...any**) | ✔️ | DataToCode.print("example", 1, Vector3.new(10, 23, 9)) |
+| \<**void**\> DataToCode.warn(... : **...any**) | ✔️ | DataToCode.warn("example", 1, Vector3.new(10, 23, 9)) |
 
 ##### Settings
 | Setting | Type | Default |
