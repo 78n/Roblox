@@ -95,21 +95,26 @@ local Keywords = {
 	["nil"] = "\"nil\""
 }
 
-local SpecialCases = {
-	[7] = "\\a",
-	[8] = "\\b",
-	[9] = "\\t",
-	[10] = "\\n",
-	[11] = "\\v",
-	[12] = "\\f",
-	[13] = "\\r"
-}
+local ByteList do
+	ByteList = {
+		[7] = "\\a",
+		[8] = "\\b",
+		[9] = "\\t",
+		[10] = "\\n",
+		[11] = "\\v",
+		[12] = "\\f",
+		[13] = "\\r",
+		[34] = "\\\"",
+		[92] = "\\\\"
+	}
 
-local ReadableCharacters = table.create(94) do
-	for i = 32, 126 do
-		ReadableCharacters[i] = string.char(i)
+	for i = 0, 255 do
+		local Character = string.char(i)
+
+		if not ByteList[Character] and (i < 32 or i > 126) then
+			ByteList[Character] = ("\\%03d"):format(i)
+		end
 	end
-	ReadableCharacters[34], ReadableCharacters[92] = "\\\"", "\\\\"
 end
 
 local Enums = {} do
@@ -119,7 +124,7 @@ local Enums = {} do
 end
 
 local GlobalFunctions = {} do
-	local getrenv = getrenv or (function()
+	local getrenv = getrenv or (function() -- support for studio executors
 		local env = { -- I could be missing a couple libraries
 			bit32 = bit32,
 			buffer = buffer,
@@ -132,6 +137,7 @@ local GlobalFunctions = {} do
 			utf8 = utf8,
 			Content = Content,
 			Axes = Axes,
+			AdReward = AdReward, --Empty
 			BrickColor = BrickColor,
 			CatalogSearchParams = CatalogSearchParams,
 			CFrame = CFrame,
@@ -235,7 +241,7 @@ local GlobalFunctions = {} do
 						Visited[tbl] = true
 
 						for i,v in next, tbl do
-							local Type = type(i) == "string" and not Keywords[i] and i:match("[A-z_][a-Z_0-9]") and type(v)
+							local Type = type(i) == "string" and not Keywords[i] and i:match("[A-z_][A-z_0-9]") and type(v)
 							local NewPath = Type and (Type == "function" or Type == "table") and Path.."."..i
 
 							if NewPath then
@@ -257,6 +263,8 @@ local GlobalFunctions = {} do
 		end
 	end
 end
+
+print(GlobalFunctions)
 
 local DefaultVectors, DefaultCFrames = {}, {} do
 	local function ExtractTypes<Type>(From : {[any] : any}, Path : string, DataType : string, Storage : {}?) : {[Type] : string}
@@ -773,6 +781,9 @@ function DefaultMethods.number(num : number)
 end
 
 function DefaultMethods.string(RawString : string)
+	return "\""..RawString:gsub("[\0-\31\34\92\127-\255]", ByteList).."\""
+	--[[
+	--Old way of doing it (I wasnt aware you could do \0xx / \00x for bytes)
 	local RawStringBuffer = fromstring(RawString)
 	local SerializedString = ""
 	local Lastunicode = false
@@ -794,6 +805,7 @@ function DefaultMethods.string(RawString : string)
 	end
 
 	return "\""..SerializedString.."\""
+	]]
 end
 
 function DefaultMethods.thread(thread : thread)
@@ -804,7 +816,7 @@ function DefaultMethods.userdata(userdata : any)
 	return getmetatable(userdata) ~= nil and "newproxy(true)" or "newproxy(false)"
 end
 
-local SecurityCapabilityEnums = Enum.SecurityCapability:GetEnumItems()
+local SecurityCapabilityEnums = Enum.SecurityCapability:GetEnumItems() -- Missing CapabilityControl
 function DefaultMethods.SecurityCapabilities(Capabilities : SecurityCapabilities, format : boolean?, _, _, InComment : boolean?)
 	local Contains = {}
 	local CurrentIndex = 1
@@ -816,7 +828,7 @@ function DefaultMethods.SecurityCapabilities(Capabilities : SecurityCapabilities
 		end
 	end
 
-	if tostring(Capabilities):match("CapabilityControl") then -- temp fix
+	if tostring(Capabilities):match("CapabilityControl") then -- temp fix until I actually write a real temp fix
 		local CommentSeperator = (InComment and "=" or "")
 		Contains[CurrentIndex] = "--["..CommentSeperator.."[ CapabilityControl ]"..CommentSeperator.."]"
 	end
@@ -838,7 +850,7 @@ local function Serializevargs(... : any)
 	local tbl = pack(...) -- Thank you https://github.com/sown0000 for pointing out that nils arent printed
 	local GenerationSize = 0
 
-	for i = 1,#tbl do
+	for i = 1, #tbl do
 		local Generation = Serialize(tbl[i], true, "")
 		tbl[i] = Generation
 		GenerationSize += #Generation
