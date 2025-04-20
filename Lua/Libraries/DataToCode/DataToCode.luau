@@ -866,7 +866,7 @@ end
 Class.Methods = setmetatable(Methods, {
 	__index = getmetatable(Methods).__index,
 	__newindex = function(self, index : string, newindex : ((...any?) -> (...any?))?)
-		assert(type(index) == "string" and (not newindex or type(newindex) == "string"), "Signals.index<string> = newindex<string?> expected, got: Signals.index<"..typeof(index).."> = newindex<"..typeof(newindex)..">")
+		assert(type(index) == "string" and (not newindex or type(newindex) == "function"), "Methods.index<string> = newindex<function?> expected, got: Methods.index<"..typeof(index).."> = newindex<"..typeof(newindex)..">")
 		rawset(self, index, newindex)
 	end
 })
