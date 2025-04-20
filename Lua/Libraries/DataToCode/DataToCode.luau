@@ -428,7 +428,7 @@ function DefaultMethods.ColorSequence(Sequence : ColorSequence)
 	local Serialized = ""
 
 	for i = 1, Size-1 do
-		Serialized ..= Serialized..SerializeColorSequenceKeypoint(Keypoints[i])..", "
+		Serialized ..= SerializeColorSequenceKeypoint(Keypoints[i])..", "
 	end
 
 	return "ColorSequence.new({"..Serialized..SerializeColorSequenceKeypoint(Keypoints[Size]).."})"
