@@ -264,8 +264,6 @@ local GlobalFunctions = {} do
 	end
 end
 
-print(GlobalFunctions)
-
 local DefaultVectors, DefaultCFrames = {}, {} do
 	local function ExtractTypes<Type>(From : {[any] : any}, Path : string, DataType : string, Storage : {}?) : {[Type] : string}
 		local Storage = Storage or setmetatable({}, {__mode = "k"}) -- I dont technically dont need it but as I don't know what people are going to do with this code better safe than sorry
