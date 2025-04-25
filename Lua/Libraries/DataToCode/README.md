@@ -106,7 +106,7 @@ DataToCode.Convert(test_table, true) --[[
 | [Rect](https://create.roblox.com/docs/reference/engine/datatypes/Rect) | Rect.new(Min : **Vector2**, Max : **Vector2**) | ✔️ | ❌ |
 | [Region3](https://create.roblox.com/docs/reference/engine/datatypes/Region3) | Region3.new(Min : **Vector3**, Max **Vector3**) | ✔️ | ❌ |
 | [Region3int16](https://create.roblox.com/docs/reference/engine/datatypes/Region3int16) | Region3int16.new(Min : **Vector3int16**, Max : **Vector3int16**) | ✔️ | ❌ |
-| [SecurityCapabilities](https://create.roblox.com/docs/reference/engine/classes/Instance#Capabilities) | SecurityCapabilities.new(... : **...Enum.SecurityCapability**) <sub>*unable to support SecurityCapabilities.fromCurrent() as CapabilityControl is not a valid Enum</sub> | ➖ | N/A |
+| [SecurityCapabilities](https://create.roblox.com/docs/reference/engine/classes/Instance#Capabilities) | SecurityCapabilities.new(... : **...Enum.SecurityCapability**) | ✔️ | N/A |
 | [SharedTable](https://create.roblox.com/docs/reference/engine/datatypes/SharedTable) | SharedTable.new(Contents : **{[string \| number] : any?\*}**) **\***<sub>Serializable data</sub> | ✔️ | ✔️ |
 | [TweenInfo](https://create.roblox.com/docs/reference/engine/datatypes/TweenInfo) | TweenInfo.new(Time : **number**, EasingStyle : **Enum.EasingStyle**, EasingDirection : **Enum.EasingDirection**, RepeatCount : **number**, Reverses : **boolean**, DelayTime : **number**) | ✔️ | ❌ |
 | [UDim](https://create.roblox.com/docs/reference/engine/datatypes/UDim) | UDim.new(Scale : **number**, Offset : **number**) | ✔️ | ❌ |
