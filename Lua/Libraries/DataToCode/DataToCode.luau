@@ -814,7 +814,7 @@ function DefaultMethods.userdata(userdata : any)
 	return getmetatable(userdata) ~= nil and "newproxy(true)" or "newproxy(false)"
 end
 
-local SecurityCapabilityEnums = Enum.SecurityCapability:GetEnumItems() -- Missing CapabilityControl
+local SecurityCapabilityEnums = Enum.SecurityCapability:GetEnumItems()
 function DefaultMethods.SecurityCapabilities(Capabilities : SecurityCapabilities, format : boolean?, _, _, InComment : boolean?)
 	local Contains = {}
 	local CurrentIndex = 1
@@ -824,11 +824,6 @@ function DefaultMethods.SecurityCapabilities(Capabilities : SecurityCapabilities
 			Contains[CurrentIndex] = "Enum.SecurityCapability."..v.Name
 			CurrentIndex += 1
 		end
-	end
-
-	if tostring(Capabilities):match("CapabilityControl") then -- temp fix until I actually write a real temp fix
-		local CommentSeperator = (InComment and "=" or "")
-		Contains[CurrentIndex] = "--["..CommentSeperator.."[ CapabilityControl ]"..CommentSeperator.."]"
 	end
 
 	return "SecurityCapabilities.new("..concat(Contains, ", ")..")"
