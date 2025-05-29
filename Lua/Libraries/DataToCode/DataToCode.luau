@@ -892,6 +892,10 @@ if type(setclipboard) == "function" then
 	end
 end
 
+Class.Internals = table.freeze({
+	Serialize = Serialize
+})
+
 return setmetatable(Class, {
 	__tostring = function(self)
 		return "DataToCode "..self.__VERSION
